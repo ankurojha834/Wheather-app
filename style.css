@@ -1,0 +1,126 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap');
+
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* Background - 3D Space Effect */
+body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px;
+}
+
+/* 3D Weather Container */
+.container {
+    width: 400px;
+    padding: 30px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
+                inset 5px 5px 10px rgba(255, 255, 255, 0.2),
+                inset -5px -5px 15px rgba(0, 0, 0, 0.4);
+    transform-style: preserve-3d;
+    transform: rotateY(5deg);
+    transition: transform 0.5s ease-in-out;
+}
+
+/* Hover Effect to Simulate Depth */
+.container:hover {
+    transform: rotateY(0deg) translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 255, 255, 0.2);
+}
+
+/* Header */
+h2 {
+    color: #fff;
+    font-size: 28px;
+    text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.6);
+}
+
+/* Input Field */
+input {
+    width: 80%;
+    padding: 12px;
+    border: none;
+    outline: none;
+    font-size: 18px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    text-align: center;
+    box-shadow: inset 2px 2px 10px rgba(255, 255, 255, 0.3),
+                inset -2px -2px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* 3D Animated Button */
+button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(145deg, #ff7e5f, #feb47b);
+    color: white;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4), 
+                inset -3px -3px 10px rgba(255, 255, 255, 0.2);
+    transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Button Hover and Active Effects */
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+}
+
+button:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+/* 3D Weather Info Display */
+#weather {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 10px rgba(49, 245, 0, 0.4);
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Weather Icons */
+.weather-icon {
+    font-size: 50px;
+    margin-top: 10px;
+    filter: drop-shadow(2px 2px 5px rgb(255, 255, 0.4));
+}
+
+/* Glow Effect for Weather Icons */
+.weather-icon:hover {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+.aqi{
+    color: #31eb10;
+    
+}
+
+/* Fade-In Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+

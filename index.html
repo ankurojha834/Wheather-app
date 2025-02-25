@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Weather App with AQI & Voice</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>🌎 3D Weather & AQI App</h2>
+        <div class="input-group">
+            <input type="text" id="city" placeholder="Enter city name">
+            <button id="voice-btn" onclick="startVoiceRecognition()">🎤 Speak</button>
+        </div>
+        <button onclick="getWeather()">Get Weather</button>
+        
+        <div id="weather">
+            <div class="weather-icon"></div>
+            <p id="weather-info"></p>
+            <p id="aqi-info"></p>
+            <div class="aqi-bar">
+                <div id="aqi-level"></div>
+            </div>
+            <canvas id="aqiChart" class="aqi"></canvas>
+        </div>
+        <div id="ai-recommendations">
+            <h3>💡 AI Health & Travel Tips</h3>
+            <p id="recommendations-text">Enter a city to get AI-generated health tips!</p>
+        </div>
+    </div>
+
+    <script>
+        let aqiHistory = [];
+let chart;
+
+function startVoiceRecognition() {
+    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.start();
+    recognition.onresult = function (event) {
+        document.getElementById("city").value = event.results[0][0].transcript;
+    };
+    recognition.onerror = function () {
+        alert("Voice recognition failed. Please try again!");
+    };
+}
+
+function getWeather() {
+    let city = document.getElementById("city").value.trim();
+    if (!city) {
+        alert("Please enter a city name!");
+        return;
+    }
+
+    document.getElementById("weather-info").innerHTML = "Fetching data...";
+    document.getElementById("aqi-info").innerHTML = "";
+    document.querySelector(".weather-icon").innerHTML = "⏳";
+
+    fetch(`index.php?city=${city}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error || data.temperature === "N/A") {
+                document.getElementById("weather-info").innerHTML = "City not found!/ check connection !";
+                document.querySelector(".weather-icon").innerHTML = "❌";
+                return;
+            }
+
+            let icon = getWeatherIcon(data.weather);
+            document.querySelector(".weather-icon").innerHTML = icon;
+
+            let weatherText = `Temperature: ${data.temperature}°C, Weather: ${data.weather}`;
+            document.getElementById("weather-info").innerHTML = weatherText;
+
+            let aqiText = `AQI: ${data.aqi} (${getAQIMessage(data.aqi)})`;
+            document.getElementById("aqi-info").innerHTML = aqiText;
+
+            updateAQIBar(data.aqi);
+            updateAQIChart(data.aqi);
+            speakWeather(`${weatherText}. The air quality index is ${data.aqi}.`);
+
+            // Display AI-generated recommendations
+            document.getElementById("recommendations-text").innerHTML = data.recommendations;
+
+           // Speak AI recommendations
+         speakWeather(`The weather is ${data.weather}, temperature is ${data.temperature}°C. The air quality index is ${data.aqi}. ${data.recommendations}`);
+        })
+        
+        .catch(error => {
+            document.getElementById("weather-info").innerHTML = "Error fetching data!";
+            console.error(error);
+        });
+}
+
+function getWeatherIcon(weather) {
+    if (weather.includes("clear")) return "☀";
+    if (weather.includes("cloud")) return "☁";
+    if (weather.includes("rain")) return "🌧";
+    if (weather.includes("snow")) return "❄";
+    if (weather.includes("thunder")) return "⚡";
+    return "🌍";
+}
+
+function getAQIMessage(aqi) {
+    if (aqi <= 50) return "Good 🟢";
+    if (aqi <= 100) return "Moderate 🟡";
+    if (aqi <= 150) return "Unhealthy for Sensitive Groups 🟠";
+    if (aqi <= 200) return "Unhealthy 🔴";
+    if (aqi <= 300) return "Very Unhealthy 🟣";
+    return "Hazardous ⚫";
+}
+
+function updateAQIBar(aqi) {
+    let aqiLevel = document.getElementById("aqi-level");
+    aqiLevel.style.width = `${(aqi / 300) * 100}%`;
+    aqiLevel.style.background = getAQIColor(aqi);
+}
+
+function getAQIColor(aqi) {
+    if (aqi <= 50) return "#00e676";
+    if (aqi <= 100) return "#ffeb3b";
+    if (aqi <= 150) return "#ff9800";
+    if (aqi <= 200) return "#f44336";
+    if (aqi <= 300) return "#9c27b0";
+    return "#3e2723";
+}
+
+function updateAQIChart(aqi) {
+    aqiHistory.push(aqi);
+    if (aqiHistory.length > 10) aqiHistory.shift();
+
+    if (!chart) {
+        let ctx = document.getElementById("aqiChart").getContext("2d");
+        chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: Array(aqiHistory.length).fill(""),
+                datasets: [{
+                    label: "AQI Level",
+                    data: aqiHistory,
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    borderWidth: 2,
+                    fill: true
+                }]
+            }
+        });
+    } else {
+        chart.data.labels = Array(aqiHistory.length).fill("");
+        chart.data.datasets[0].data = aqiHistory;
+        chart.update();
+    }
+}
+
+function speakWeather(text) {
+    let speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    speech.rate = 1;
+    speech.pitch = 1;
+    window.speechSynthesis.speak(speech);
+}
+
+    </script>
+</body>
+</html>
